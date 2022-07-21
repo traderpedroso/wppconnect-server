@@ -86,7 +86,9 @@ export async function getAllChatsWithMessages(req, res) {
     return res.status(500).json({ status: 'error', message: 'Error on get all chats whit messages' });
   }
 }
-
+/**
+ * Depreciado em favor de getMessages
+ */
 export async function getAllMessagesInChat(req, res) {
   try {
     let { phone } = req.params;
@@ -291,12 +293,24 @@ export async function deleteMessage(req, res) {
   const { phone, messageId } = req.body;
 
   try {
-    await req.client.deleteMessage(`${phone}@c.us`, [messageId]);
+    await req.client.deleteMessage(`${phone}`, [messageId]);
 
     return res.status(200).json({ status: 'success', response: { message: 'Message deleted' } });
   } catch (e) {
     req.logger.error(e);
     return res.status(500).json({ status: 'error', message: 'Error on delete message' });
+  }
+}
+export async function reactMessage(req, res) {
+  const { msgId, reaction } = req.body;
+
+  try {
+    await req.client.sendReactionToMessage(msgId, reaction);
+
+    return res.status(200).json({ status: 'success', response: { message: 'Reaction sended' } });
+  } catch (e) {
+    req.logger.error(e);
+    return res.status(500).json({ status: 'error', message: 'Error on send reaction to message' });
   }
 }
 

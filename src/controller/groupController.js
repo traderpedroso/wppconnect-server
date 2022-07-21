@@ -362,17 +362,19 @@ export async function changePrivacyGroup(req, res) {
 }
 
 export async function setGroupProfilePic(req, res) {
-  const { phone } = req.body;
+  const { phone, path } = req.body;
 
-  if (!req.file) return res.status(400).json({ status: 'error', message: 'File parameter is required!' });
+  if (!path && !req.file)
+    return res.status(401).send({
+      message: 'Sending the image is mandatory',
+    });
+
+  const pathFile = path || req.file.path;
 
   try {
-    const { path: pathFile } = req.file;
-
     for (const contato of contactToArray(phone, true)) {
-      await req.client.setProfilePic(pathFile, contato);
+      await req.client.setGroupIcon(contato, pathFile);
     }
-    await unlinkAsync(pathFile);
 
     return res
       .status(201)
